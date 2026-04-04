@@ -2,9 +2,9 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 
-SECRET_KEY = "your_secret_key"   # change later
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
