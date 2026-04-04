@@ -1,0 +1,239 @@
+# ================================================================
+# Zorvyn — Financial Analytics Backend API
+# Sample Requests
+#
+# Usage:
+#   VS Code  → install "REST Client" extension → click "Send Request"
+#   Other    → use these as reference for Postman / curl / Swagger
+#
+# Steps:
+#   1. Start server: uvicorn main:app --reload
+#   2. Register users (Step 1)
+#   3. Login and copy the token (Step 2)
+#   4. Replace {{token}} with your actual token in each request
+# ================================================================
+
+@base_url = http://127.0.0.1:8000
+@admin_token = PASTE_ADMIN_TOKEN_HERE
+@analyst_token = PASTE_ANALYST_TOKEN_HERE
+@viewer_token = PASTE_VIEWER_TOKEN_HERE
+
+
+# ================================================================
+# STEP 1 — REGISTER USERS
+# ================================================================
+
+### Register Admin
+POST {{base_url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "admin123",
+  "role_id": 1
+}
+
+### Register Analyst
+POST {{base_url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "analyst@test.com",
+  "password": "analyst123",
+  "role_id": 2
+}
+
+### Register Viewer
+POST {{base_url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "viewer@test.com",
+  "password": "viewer123",
+  "role_id": 3
+}
+
+
+# ================================================================
+# STEP 2 — LOGIN (copy the token into the variables above)
+# ================================================================
+
+### Login as Admin
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "admin123"
+}
+
+### Login as Analyst
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "analyst@test.com",
+  "password": "analyst123"
+}
+
+### Login as Viewer
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "viewer@test.com",
+  "password": "viewer123"
+}
+
+
+# ================================================================
+# USERS — Admin only
+# ================================================================
+
+### List all users
+GET {{base_url}}/users/
+Authorization: Bearer {{admin_token}}
+
+### Deactivate a user (replace 3 with actual user id)
+PATCH {{base_url}}/users/3/status
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "is_active": false
+}
+
+### Reactivate a user
+PATCH {{base_url}}/users/3/status
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "is_active": true
+}
+
+### Reassign role (replace 3 with user id, role_id 1=Admin 2=Analyst 3=Viewer)
+PATCH {{base_url}}/users/3/role
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "role_id": 2
+}
+
+
+# ================================================================
+# FINANCE RECORDS
+# ================================================================
+
+### Create record — income (Admin only)
+POST {{base_url}}/finance/
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "amount": 75000,
+  "record_type": "income",
+  "category": "salary",
+  "description": "Monthly salary - March",
+  "date": "2024-03-01"
+}
+
+### Create record — expense (Admin only)
+POST {{base_url}}/finance/
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "amount": 12000,
+  "record_type": "expense",
+  "category": "rent",
+  "description": "Monthly rent",
+  "date": "2024-03-05"
+}
+
+### Create record — another expense
+POST {{base_url}}/finance/
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "amount": 3500,
+  "record_type": "expense",
+  "category": "groceries",
+  "description": "Weekly groceries",
+  "date": "2024-03-10"
+}
+
+### List all records (Admin + Analyst)
+GET {{base_url}}/finance/
+Authorization: Bearer {{admin_token}}
+
+### Filter by type
+GET {{base_url}}/finance/?record_type=expense
+Authorization: Bearer {{analyst_token}}
+
+### Filter by category
+GET {{base_url}}/finance/?category=salary
+Authorization: Bearer {{analyst_token}}
+
+### Filter by date range
+GET {{base_url}}/finance/?start_date=2024-03-01&end_date=2024-03-31
+Authorization: Bearer {{analyst_token}}
+
+### Pagination
+GET {{base_url}}/finance/?limit=2&offset=0
+Authorization: Bearer {{admin_token}}
+
+### Update a record (Admin only — replace 1 with actual record id)
+PUT {{base_url}}/finance/1
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "amount": 80000,
+  "description": "Updated salary amount"
+}
+
+### Delete a record (Admin only — replace 1 with actual record id)
+DELETE {{base_url}}/finance/1
+Authorization: Bearer {{admin_token}}
+
+### Try to delete non-existent record — should return 404
+DELETE {{base_url}}/finance/9999
+Authorization: Bearer {{admin_token}}
+
+### Viewer tries to create record — should return 403
+POST {{base_url}}/finance/
+Authorization: Bearer {{viewer_token}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "record_type": "income",
+  "category": "test",
+  "description": "Should be blocked"
+}
+
+
+# ================================================================
+# DASHBOARD — All roles
+# ================================================================
+
+### Summary
+GET {{base_url}}/dashboard/summary
+Authorization: Bearer {{viewer_token}}
+
+### Category breakdown
+GET {{base_url}}/dashboard/categories
+Authorization: Bearer {{viewer_token}}
+
+### Recent activity (last 3)
+GET {{base_url}}/dashboard/recent?limit=3
+Authorization: Bearer {{viewer_token}}
+
+### Monthly trend
+GET {{base_url}}/dashboard/monthly
+Authorization: Bearer {{viewer_token}}
+
+
