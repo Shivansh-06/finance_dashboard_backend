@@ -2,8 +2,6 @@
 
 A backend system built with **FastAPI** and **SQLite** to manage financial records and provide analytics through a role-based access control system.
 
-Built as part of the Zorvyn backend assessment.
-
 ---
 
 ## 🏗️ Architecture & Request Flow
